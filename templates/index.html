@@ -7,6 +7,12 @@
 <div class="container">
 	<h1>Hello Bootstrap</h1>
 	{{ wtf.quick_form(form, button_map={'submit_button': 'primary'}) }}
-	<p> Submitted Idea: {{ submitted_idea }} </p>
+	<ol>
+		{% for idea in list_of_ideas %}
+			<li>{{ idea.idea_name }}</li>
+		{% else %}
+			<li>No Ideas Yet</li>
+		{% endfor %}
+	</ol>
 </div>
 {% endblock %}
