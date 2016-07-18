@@ -2,7 +2,7 @@
 File: app.py
 Author: Ammar Najjar
 Email: najjarammar@gmail.com
-Github: https://github.com/najjarammar
+Github: https://github.com/ammarnajjar
 Description: Simple Flask note taking app.
 """
 
@@ -23,35 +23,36 @@ class IdeaForm(Form):
      idea_name = StringField('Idea name', validators=[DataRequired()])
      submit_button = SubmitField('Add idea')
 
+app = Flask(__name__)
+# in real app use Flask-Appconfig
+app.config['SECRET_KEY'] = 'devkey'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECURITY_REGISTERABLE'] = True
+app.config['SECURITY_SEND_REGISTER_EMAIL'] = False
+app.config['SECURITY_SEND_PASSWORD_CHANGE_EMAIL'] = False
+app.config['SECURITY_SEND_PASSWORD_RESET_NOTICE_EMAIL'] = False
+app.config['SECRET_FLASH_MESSAGES'] = True
 
-def create_app():
-    app = Flask(__name__)
-    Bootstrap(app)
-    # in real app use Flask-Appconfig
-    app.config['SECRET_KEY'] = 'devkey'
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db = SQLAlchemy(app)
+Bootstrap(app)
+db = SQLAlchemy(app)
 
-    class Idea(db.Model):
-        id = db.Column(db.Integer, primary_key=True)
-        idea_name = db.Column(db.String(255), unique=True)
+class Idea(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    idea_name = db.Column(db.String(140))
 
-        def __init__(self, idea_name):
-            self.idea_name = idea_name
+    def __init__(self, idea):
+        self.idea_name = idea
 
-        def __repr__(self):
-            return '<Idea name: %r>' % self.idea_name
+    def __repr__(self):
+        return '<Idea : %r>' % self.id
 
-    db.create_all()
-    return app
+db.create_all()
 
-app = create_app()
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
     form = IdeaForm()
-    submitted_idea = '<No idea submitted>'
     if form.validate_on_submit():
         idea = Idea(form.idea_name.data)
         db.session.add(idea)
